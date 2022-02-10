@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  golang:
+    build:
+      dockerfile: dist/go/Dockerfile
+      context: .
+      target: dev
+    container_name: golang-last
+    stdin_open: true
+    tty: true
+    image: golang
+    working_dir: /var/www/go-one
+    ports:
+      - 6666:6666
+      - 40000:40000
+    volumes:
+      - .:/var/www/go-one
