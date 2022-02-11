@@ -5,11 +5,12 @@ import (
 	"math"
 	"math/cmplx"
 	"math/rand"
+	"runtime"
+	"strings"
+	"time"
 )
 
 const Si = 3.14
-
-var i, j int = 1, 2
 
 var (
 	ToBe   bool       = false
@@ -31,6 +32,100 @@ func needFloat(x float64) float64 {
 }
 
 func main() {
+	//packagesVariablesStatements()
+
+	//flowControlStatements()
+
+	//structures()
+
+	maps()
+
+	functionValues()
+}
+
+func compute(fn func(float64, float64) float64) float64 {
+	return fn(3, 4)
+}
+
+func adder() func(int) int {
+	//замыкает sum как статическую переменную для каждого контекста вызова
+	sum := 0
+	return func(x int) int {
+		sum += x
+		return sum
+	}
+}
+
+func functionValues() {
+	hypot := func(x, y float64) float64 {
+		return math.Sqrt(x*x + y*y)
+	}
+
+	fmt.Println(hypot(5, 12))
+
+	fmt.Println(compute(hypot))
+	fmt.Println(compute(math.Pow))
+
+	pos, neg := adder(), adder()
+	for i := 0; i < 10; i++ {
+		fmt.Println(
+			pos(i),
+			neg(-2*i),
+		)
+	}
+}
+
+func maps() {
+	type Vertex struct {
+		Lat, Long float64
+	}
+
+	var m map[string]Vertex
+
+	m = make(map[string]Vertex)
+	fmt.Println(m)
+
+	m["Bell Labs"] = Vertex{
+		40.68433, -74.39967,
+	}
+	fmt.Println(m["Bell Labs"])
+
+	var v = map[string]Vertex{
+		"Bell Labs": Vertex{
+			40.68433, -74.39967,
+		},
+		"Google": Vertex{
+			37.42202, -122.08408,
+		},
+	}
+	fmt.Println(v)
+
+	var z = map[string]Vertex{
+		"Bell Labs": {40.68433, -74.39967},
+		"Google":    {37.42202, -122.08408},
+	}
+	fmt.Println(z)
+	fmt.Printf("%T\n", z["Bell Labs"])
+
+	g := make(map[string]int)
+	g["Answer"] = 42
+	g["Own"] = 77
+	fmt.Println("The value:", g["Answer"])
+
+	g["Answer"] = 48
+	fmt.Println("The value:", g["Answer"])
+
+	delete(g, "Answer")
+	fmt.Println("The value:", g["Answer"])
+
+	u, existKeyBool := g["Answer"]
+	fmt.Println("The value:", u, "Present?", existKeyBool)
+
+	u, existKeyBool = g["Own"]
+	fmt.Println("The value:", u, "Present?", existKeyBool)
+}
+
+func packagesVariablesStatements() {
 	fmt.Println("Hello, 世界")
 	fmt.Println("My favorite number is", rand.Intn(10))
 	fmt.Printf("Now you have %g problems.\n", math.Sqrt(7))
@@ -44,7 +139,7 @@ func main() {
 	fmt.Println(one, two, tree)
 
 	var c, python, java = true, false, "no!"
-	fmt.Println(i, j, c, python, java)
+	fmt.Println(c, python, java)
 
 	var q, w int = 1, 2
 	k := 3
@@ -81,6 +176,311 @@ func main() {
 	fmt.Printf("v is of type %v\n", Small)
 }
 
+func flowControlStatements() {
+	var sum = 0
+	// for
+	for i := 0; i < 10; i++ {
+		sum += i
+	}
+	fmt.Println(sum)
+
+	sum = 1
+	// while
+	for sum < 1000 {
+		sum += sum
+	}
+	fmt.Println(sum)
+
+	//while true
+	for {
+		fmt.Println(sum)
+		break
+	}
+
+	fmt.Println(sqrt(2), sqrt(-4))
+
+	fmt.Println(
+		po(3, 3, 10),
+		po(3, 3, 20),
+	)
+
+	fmt.Print("Go runs on ")
+	os := runtime.GOOS
+	switch os {
+	case "darwin":
+		fmt.Println("OS X.")
+	case "linux":
+		fmt.Println("Linux.")
+	default:
+		// freebsd, openbsd,
+		// plan9, windows...
+		fmt.Printf("%s.\n", os)
+	}
+
+	fmt.Println("When's Saturday?")
+	today := time.Now().Weekday()
+	switch time.Saturday {
+	case today + 0:
+		fmt.Println("Today.")
+	case today + 1:
+		fmt.Println("Tomorrow.")
+	case today + 2:
+		fmt.Println("In two days.")
+	default:
+		fmt.Println("Too far away.")
+	}
+
+	t := time.Now()
+	switch {
+	case t.Hour() < 12:
+		fmt.Println("Good morning!")
+	case t.Hour() < 17:
+		fmt.Println("Good afternoon.")
+	default:
+		fmt.Println("Good evening.")
+	}
+
+	defer fmt.Println("world")
+
+	fmt.Println("hello")
+
+	fmt.Println("counting")
+
+	for i := 0; i < 10; i++ {
+		defer fmt.Println(i)
+	}
+
+	fmt.Println("done")
+}
+
+type Vertex struct {
+	X int
+	Y int
+}
+
+func structures() {
+	i, j := 42, 2701
+	p := &i         // point to i
+	fmt.Println(*p) // read i through the pointer
+	fmt.Println(p)  // read i through the pointer
+	fmt.Println(&p) // read i through the pointer
+	*p = 21         // set i through the pointer
+	fmt.Println(i)  // see the new value of i
+
+	p = &j // point to j
+	fmt.Println(*p)
+	*p = *p / 37   // divide j through the pointer
+	fmt.Println(j) // see the new value of j
+
+	var vertex Vertex = Vertex{1, 2}
+	vertex.X = 22
+	fmt.Println(vertex, vertex.X, vertex.Y)
+
+	v := Vertex{1, 2}
+	n := &v
+	(*n).X = 1e9
+	n.Y = 2e9
+	fmt.Println(v)
+
+	var (
+		v1 = Vertex{1, 2}  // has type Vertex
+		v2 = Vertex{X: 1}  // Y:0 is implicit
+		v3 = Vertex{}      // X:0 and Y:0
+		k  = &Vertex{1, 2} // has type *Vertex
+	)
+
+	fmt.Println(v1, v2, v3, k, *k)
+
+	var a [2]string
+	a[0] = "Hello"
+	a[1] = "World"
+	fmt.Println(a[0], a[1])
+	fmt.Println(a)
+
+	primes := [6]int{2, 3, 5, 7, 11, 13}
+	fmt.Println(primes)
+
+	// включительно со 2 ключа до 3, исключая 4 и далее
+	var s []int = primes[2:4]
+	s[1] = 22
+	primes[2] = 33
+	fmt.Println(primes)
+	fmt.Println(s)
+
+	names := [4]string{
+		"John",
+		"Paul",
+		"George",
+		"Ringo",
+	}
+	fmt.Println(names)
+
+	x := names[0:2]
+	b := names[1:3]
+	fmt.Println(x, b)
+
+	// меняет значение в срезе, это изменяет базовый массив, все срезы ссылающиеся на массив меняют это значение
+	b[0] = "XXX"
+	fmt.Println(x, b)
+	fmt.Println(names)
+
+	q := []int{2, 3, 5, 7, 11, 13}
+	fmt.Println(q)
+
+	r := []bool{true, false, true, true, false, true}
+	fmt.Println(r)
+
+	h := []struct {
+		i int
+		b bool
+	}{
+		{2, true},
+		{3, false},
+		{5, true},
+		{7, true},
+		{11, false},
+		{13, true},
+	}
+	fmt.Println(h)
+
+	s1 := []int{2, 3, 5, 7, 11, 13}
+
+	//начиная с индекса 1, исключая индекс 4 и выше
+	s2 := s1[1:4]
+	fmt.Println(s2)
+
+	// начиная с индекса 0, исключая индекс 2 и выше
+	s3 := s1[:2]
+	fmt.Println(s3)
+
+	// начиная с 1 индекса и до конца
+	s4 := s1[1:]
+	fmt.Println(s4)
+
+	e := []int{2, 3, 5, 7, 11, 13}
+	printSlice(e)
+
+	// Slice the slice to give it zero length.
+	s5 := e[:0]
+	printSlice(s5)
+
+	// Extend its length.
+	s6 := e[:4]
+	printSlice(s6)
+
+	// Drop its first two values.
+	s7 := e[2:]
+	printSlice(s7)
+
+	var w []int
+	fmt.Println(w, len(w), cap(w))
+	if w == nil {
+		fmt.Println("nil!")
+	}
+
+	sliceWithMake()
+
+	sliceOfSlices()
+
+	appendToSlice()
+
+	rangeSlice()
+}
+
+func rangeSlice() {
+	/*	var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
+
+		for i, v := range pow {
+			fmt.Printf("2**%d = %d\n", i, v)
+		}*/
+
+	pow := make([]int, 10)
+	for i := range pow {
+		pow[i] = 1 << uint(i) // == 2**i
+	}
+	for _, value := range pow {
+		fmt.Printf("%d\n", value)
+	}
+}
+
+func appendToSlice() {
+	var s []int
+	printSlice(s)
+
+	// append works on nil slices.
+	s = append(s, 0)
+	printSlice(s)
+
+	// The slice grows as needed.
+	s = append(s, 1)
+	printSlice(s)
+
+	// We can add more than one element at a time.
+	s = append(s, 2, 3, 4)
+	printSlice(s)
+}
+
+func sliceWithMake() {
+	a := make([]int, 0, 5)
+	printSliceOne("a", a)
+
+	b := make([]int, 5)
+	b[1], b[2], b[3], b[4] = 1, 2, 3, 4
+	printSliceOne("b", b)
+
+	// включаеет с 0 по 1 индекс
+	c := b[:2]
+	printSliceOne("c", c)
+
+	// включает с 0 до 1 индекс среза "с" потому что он уже из двух элементов
+	d := c[0:]
+	printSliceOne("d", d)
+
+	// независимо от того, что "d" срез уже из двух элементов, берется базовый массив и с него делается срез, т.к.
+	// в нем указаны необходимые ключи
+	f := d[0:5]
+	printSliceOne("d", f)
+}
+
+func sliceOfSlices() {
+	board := [][]string{
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+	}
+
+	// The players take turns.
+	board[0][0] = "X"
+	board[2][2] = "O"
+	board[1][2] = "X"
+	board[1][0] = "O"
+	board[0][2] = "X"
+
+	for i := 0; i < len(board); i++ {
+		fmt.Printf("%s\n", strings.Join(board[i], " "))
+	}
+}
+
+func printSlice(s []int) {
+	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+}
+
+func printSliceOne(s string, x []int) {
+	fmt.Printf("%s len=%d cap=%d %v\n",
+		s, len(x), cap(x), x)
+}
+
+func po(x, n, lim float64) float64 {
+	v := math.Pow(x, n)
+	if v < lim {
+		return v
+	} else {
+		fmt.Printf("%g >= %g\n", v, lim)
+	}
+	// can't use v here, though
+	return lim
+}
+
 func add(x, y int) int {
 	return x + y
 }
@@ -94,4 +494,11 @@ func split(sum int) (x, y, s int) {
 	y = sum - x
 	s = x + 7
 	return
+}
+
+func sqrt(x float64) string {
+	if int(x) < 0 {
+		return sqrt(-x) + "i"
+	}
+	return fmt.Sprint(math.Sqrt(x))
 }
