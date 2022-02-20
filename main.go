@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"math"
 	"math/cmplx"
 	"math/rand"
 	"runtime"
 	"strings"
+	exr "test3/exercise-reader"
+	"test3/images"
 	"time"
 )
 
@@ -31,6 +35,46 @@ func needFloat(x float64) float64 {
 	return x * 0.1
 }
 
+type Ver struct {
+	X, Y float64
+}
+
+func (v *Ver) Scale(f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
+func ScaleFunc(v *Ver, f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
+func (v Ver) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+func AbsFunc(v Ver) float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+type I interface {
+	M()
+}
+
+type T struct {
+	S string
+}
+
+func (t *T) M() {
+	fmt.Println(t.S)
+}
+
+type F float64
+
+func (f F) M() {
+	fmt.Println(f)
+}
+
 func main() {
 	//packagesVariablesStatements()
 
@@ -38,9 +82,173 @@ func main() {
 
 	//structures()
 
-	maps()
+	//maps()
 
-	functionValues()
+	//functionValues()
+
+	//methods()
+
+	interfaces()
+}
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func (p Person) String() string {
+	return fmt.Sprintf("%v (%v years)", p.Name, p.Age)
+}
+
+type MyError struct {
+	When time.Time
+	What string
+}
+
+func (e *MyError) Error() string {
+	return fmt.Sprintf("at %v, %s",
+		e.When, e.What)
+}
+
+func run() error {
+	return &MyError{
+		time.Now(),
+		"it didn't work",
+	}
+}
+
+func interfaces() {
+	var i I
+
+	i = &T{"Hello"}
+	describe(i)
+	i.M()
+
+	i = F(math.Pi)
+	describe(i)
+	i.M()
+	// lesson 15 приведение типов
+
+	var a interface{} = "hello"
+
+	s := a.(string)
+	fmt.Println(s)
+
+	s, ok := a.(string)
+	fmt.Println(s, ok)
+
+	f, ok := a.(float64)
+	fmt.Println(f, ok)
+
+	//f = a.(float64) // panic
+	//fmt.Println(f)
+
+	// lesson 16
+	do(21)
+	do("hello")
+	do(true)
+
+	// php __toString()
+	b := Person{"Arthur Dent", 42}
+	z := Person{"Zaphod Beeblebrox", 9001}
+	fmt.Println(b, z)
+
+	//lesson 18
+	task()
+
+	//lesson 19
+	err := run()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//lesson 21
+	reader()
+	//lesson 22
+	exr.Reader()
+	//lesson 24
+	images.Image()
+}
+
+func reader() {
+	r := strings.NewReader("Hello, Reader!")
+
+	b := make([]byte, 8)
+	for {
+		n, err := r.Read(b)
+		fmt.Printf("n = %v err = %v b = %v\n", n, err, b)
+		fmt.Printf("b[:n] = %q\n", b[:n])
+		if err == io.EOF {
+			break
+		}
+	}
+}
+
+type IPAddr [4]byte
+
+func (ip IPAddr) String() string {
+	buffer := bytes.Buffer{}
+	for key, mask := range ip {
+		if key == len(ip)-1 {
+			buffer.WriteString(fmt.Sprintf("%v", mask))
+		} else {
+			buffer.WriteString(fmt.Sprintf("%v.", mask))
+		}
+	}
+
+	return buffer.String()
+}
+
+func task() {
+	hosts := map[string]IPAddr{
+		"loopback":  {127, 0, 0, 1},
+		"googleDNS": {8, 8, 8, 8},
+	}
+	for name, ip := range hosts {
+		fmt.Printf("%v: %v\n", name, ip)
+	}
+}
+
+func do(i interface{}) {
+	switch v := i.(type) {
+	case int:
+		fmt.Printf("Twice %v is %v\n", v, v*2)
+	case string:
+		fmt.Printf("%q is %v bytes long\n", v, len(v))
+	default:
+		fmt.Printf("I don't know about type %T!\n", v)
+	}
+}
+
+func describe(i I) {
+	fmt.Printf("(%v, %T)\n", i, i)
+}
+
+func methods() {
+	var newVer Ver = Ver{1, 2}
+	fmt.Println(newVer)
+	fmt.Println(newVer.Abs())
+	newVer.Scale(10)
+	fmt.Println(newVer)
+
+	selectVer := &Ver{2, 4}
+	selectVer.Scale(10)
+	fmt.Println(selectVer)
+
+	v := Ver{3, 4}
+	v.Scale(2)
+	ScaleFunc(&v, 10)
+
+	p := &Ver{3, 4}
+	p.Scale(2)
+	ScaleFunc(p, 10)
+
+	fmt.Println(v, p)
+
+	s := &Ver{4, 3}
+	fmt.Println(p.Abs())
+	fmt.Println(AbsFunc(*s))
+
 }
 
 func compute(fn func(float64, float64) float64) float64 {
