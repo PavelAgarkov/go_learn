@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	exr "test3/exercise-reader"
+	"test3/groutine"
 	"test3/images"
 	"time"
 )
@@ -88,7 +89,9 @@ func main() {
 
 	//methods()
 
-	interfaces()
+	//interfaces()
+
+	groutine.Lesson_1()
 }
 
 type Person struct {
