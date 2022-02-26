@@ -9,8 +9,8 @@ import (
 	"math/rand"
 	"runtime"
 	"strings"
+	"test3/embeded"
 	exr "test3/exercise-reader"
-	"test3/groutine"
 	"test3/images"
 	"time"
 )
@@ -91,7 +91,81 @@ func main() {
 
 	//interfaces()
 
-	groutine.Lesson_1()
+	//groutine.Lesson_1()
+
+	//groutine.Lesson_2()
+
+	//groutine.Lesson_3()
+
+	//groutine.Lesson_4()
+
+	//groutine.Lesson_5()
+
+	//groutine.Lesson_6()
+
+	//groutine.Lesson_7()
+
+	//rangeBytes()
+
+	//parallelDeclare()
+
+	//makeNew()
+
+	emb := embeded.NewOne()
+	_ = &embeded.One{Two: "as", Three: 1}
+	fmt.Println(emb)
+	emb.Embed()
+}
+
+func makeNew() {
+	var p *[]int = new([]int)          // allocates slice structure; *p == nil; rarely useful
+	var v []int = make([]int, 10, 100) // the slice v now refers to a new array of 100 ints
+
+	//// Unnecessarily complex:
+	//var p *[]int = new([]int)
+	//*p = make([]int, 100, 100)
+	//
+	//// Idiomatic:
+	//v := make([]int, 100)
+
+	var n float32
+	var f float64
+	var d uintptr
+	n = -200000000000000000000000000000000000000
+	f = -30000000000000000000000000000000000000000000000000000000000000000000
+	d = 2211111111111111111
+
+	//min := int(^uint(0) >> 1)
+	min := ^uint(0)
+	fmt.Println(p, v, n, f, d, min)
+
+	up := 3 << 1
+	down := 5 >> 2
+	fmt.Println(up, down)
+
+	x := []int{1, 2, 3}
+	y := []int{4, 5, 6}
+	x = append(x, y...)
+	fmt.Println(x)
+
+}
+
+func parallelDeclare() {
+	a := []int{1, 2, 3, 4, 5, 6, 7}
+
+Loop:
+	for i, j := 0, len(a)-1; i < j; i, j = i+1, j-1 {
+		a[i], a[j] = a[j], a[i]
+		break Loop
+	}
+
+	fmt.Println(a)
+}
+
+func rangeBytes() {
+	for pos, char := range "日本\x80語" { // \x80 is an illegal UTF-8 encoding
+		fmt.Printf("character %#U starts at byte position %d\n", char, pos)
+	}
 }
 
 type Person struct {
