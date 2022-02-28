@@ -15,11 +15,18 @@ type Writer interface {
 type ReadWriter interface {
 	Reader
 	Writer
+	Start(val int) int
+	Embed()
+	same()
 }
 
 type One struct {
 	Three int
 	Two   string
+}
+
+func (r *One) Start(val int) int {
+	return val
 }
 
 func (r *One) setThree(value int) *One {
@@ -32,10 +39,15 @@ func (r *One) setTwo(value string) *One {
 	return r
 }
 
+// func NewOne() *ReadWriter {
 func NewOne() *One {
-	return new(One).
+	//var one ReadWriter
+	one := new(One).
 		setThree(1).
 		setTwo("go to")
+
+	//return &one
+	return one
 }
 
 func (r *One) Read(p []byte) (n int, err error) {
@@ -50,5 +62,7 @@ func (r *One) Embed() {
 	var p []byte
 	read, ok := r.Read(p)
 	write, ok2 := r.Write(p)
+	//start := r.Start(15)
+	//fmt.Println(read, write, ok, ok2, start)
 	fmt.Println(read, write, ok, ok2)
 }

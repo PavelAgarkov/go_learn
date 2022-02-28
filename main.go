@@ -114,7 +114,13 @@ func main() {
 	emb := embeded.NewOne()
 	_ = &embeded.One{Two: "as", Three: 1}
 	fmt.Println(emb)
+	fmt.Printf("%T!\n", emb)
 	emb.Embed()
+
+	now := embeded.Now()
+	// now.Embed() невозможно вызвать, так как тип интерфейса остается только в пакете и не может быть экспортирован
+	// за его пределы, но можно now.Embed() вызвать внутри пакеты где объявлен этот интерфейс
+	fmt.Printf("%T!%d\n", now, now)
 }
 
 func makeNew() {
