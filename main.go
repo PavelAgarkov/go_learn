@@ -7,9 +7,10 @@ import (
 	"math"
 	"math/cmplx"
 	"math/rand"
+	"net/http"
 	"runtime"
 	"strings"
-	"test3/embeded"
+	"sync"
 	exr "test3/exercise-reader"
 	"test3/images"
 	"time"
@@ -111,16 +112,59 @@ func main() {
 
 	//makeNew()
 
-	emb := embeded.NewOne()
-	_ = &embeded.One{Two: "as", Three: 1}
-	fmt.Println(emb)
-	fmt.Printf("%T!\n", emb)
-	emb.Embed()
+	//emb := embeded.NewOne()
+	//_ = &embeded.One{Two: "as", Three: 1}
+	//fmt.Println(emb)
+	//fmt.Printf("%T!\n", emb)
+	//emb.Embed()
+	//
+	//now := embeded.Now()
+	//// now.Embed() невозможно вызвать, так как тип интерфейса остается только в пакете и не может быть экспортирован
+	//// за его пределы, но можно now.Embed() вызвать внутри пакеты где объявлен этот интерфейс
+	//fmt.Printf("%T!%d\n", now, now)
 
-	now := embeded.Now()
-	// now.Embed() невозможно вызвать, так как тип интерфейса остается только в пакете и не может быть экспортирован
-	// за его пределы, но можно now.Embed() вызвать внутри пакеты где объявлен этот интерфейс
-	fmt.Printf("%T!%d\n", now, now)
+	//http.HandleFunc("/", sayhello)           // Устанавливаем роутер
+	//err := http.ListenAndServe(":8083", nil) // устанавливаем порт веб-сервера
+	//if err != nil {
+	//	log.Fatal("ListenAndServe: ", err)
+	//}
+
+	fmt.Println(runtime.NumGoroutine()) //1
+
+	var wg sync.WaitGroup
+	var mtx sync.Mutex
+	var b int32 = 2
+
+	for i := 1; i <= 2; i++ {
+		wg.Add(1)
+
+		i := i
+		go func() {
+			defer wg.Done()
+
+			mtx.Lock()
+			b++
+			mtx.Unlock()
+
+			worker(i)
+		}()
+	}
+	fmt.Println(runtime.NumGoroutine())      //3
+	fmt.Printf("lock variable b is %v\n", b) //2
+
+	wg.Wait()
+	fmt.Printf("lock variable b is %v\n", b) // 4
+
+}
+
+func worker(id int) {
+	fmt.Printf("Worker %d starting\n", id)
+	time.Sleep(time.Second)
+	fmt.Printf("Worker %d done\n", id)
+}
+
+func sayhello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Привет!")
 }
 
 func makeNew() {
