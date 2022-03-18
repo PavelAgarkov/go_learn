@@ -134,8 +134,7 @@ func main() {
 	//mapType()
 
 	byteString()
-	//dsfsdfsdg
-	//sdfgdsfgdsfg
+
 }
 
 func byteString() {
