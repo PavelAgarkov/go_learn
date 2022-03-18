@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"math/cmplx"
 	"math/rand"
@@ -129,6 +130,83 @@ func main() {
 	//	log.Fatal("ListenAndServe: ", err)
 	//}
 
+	//start()
+	//mapType()
+
+	byteString()
+}
+
+func byteString() {
+	bt := []byte("GetItems:")
+	bt = append(bt, []byte("fg")...)
+	str := string(bt)
+
+	newBtStr := []byte(str)
+	equals := bytes.Equal(bt, newBtStr)
+
+	log.Printf("\n bytes : %v,\n string : %v,\n new bytes : %v,\n equals: %v", bt, str, newBtStr, equals)
+
+}
+
+func mapType() {
+	type expectedPropertiesPerPayment map[int]struct {
+		status  string
+		reasons []string
+	}
+
+	type structure1 struct {
+		status  string
+		reasons []string
+	}
+
+	structure := structure1{status: "23", reasons: []string{"23", "55"}}
+	//structure := structure1{}
+
+	exp := make(expectedPropertiesPerPayment)
+	exp[1] = structure
+
+	fmt.Printf("%v", exp)
+}
+
+func start() {
+	var wg sync.WaitGroup
+	done := make(chan struct{})
+	wq := make(chan interface{})
+	workerCount := 2
+
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go doit(i, wq, done, &wg, i+2)
+	}
+
+	for i := 0; i < workerCount; i++ {
+		wq <- i
+	}
+
+	//done <- struct{}{}
+	//done <- struct{}{}
+	close(done)
+	wg.Wait()
+
+	fmt.Println("all done!")
+}
+
+func doit(workerId int, wq <-chan interface{}, done <-chan struct{}, wg *sync.WaitGroup, sleep int) {
+	fmt.Printf("[%v] is running\n", workerId)
+	defer wg.Done()
+	for {
+		time.Sleep(time.Second * time.Duration(sleep))
+		select {
+		case m, l := <-wq:
+			fmt.Printf("[%v] m => %v l=%v\n", workerId, m, l)
+		case m, l := <-done:
+			fmt.Printf("[%v] is exit => %v read=%v done\n", workerId, m, l)
+			return
+		}
+	}
+}
+
+func wg() {
 	fmt.Println(runtime.NumGoroutine()) //1
 
 	var wg sync.WaitGroup
@@ -154,7 +232,6 @@ func main() {
 
 	wg.Wait()
 	fmt.Printf("lock variable b is %v\n", b) // 4
-
 }
 
 func worker(id int) {
