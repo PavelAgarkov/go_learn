@@ -144,7 +144,9 @@ func byteString() {
 
 	newBtStr := []byte(str)
 	equals := bytes.Equal(bt, newBtStr)
-	///11
+
+	//2222
+
 	log.Printf("\n bytes : %v,\n string : %v,\n new bytes : %v,\n equals: %v", bt, str, newBtStr, equals)
 
 }
