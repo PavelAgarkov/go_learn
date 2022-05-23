@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"math"
 	"math/cmplx"
 	"math/rand"
+	"net"
 	"net/http"
 	"runtime"
 	"strings"
@@ -133,9 +135,158 @@ func main() {
 	//start()
 	//mapType()
 
-	byteString()
+	//byteString()
+
+	//ko := &Ko{}
+	//jo := &Jo{
+	//	st: "one",
+	//	ko: ko,
+	//}
+	//
+	//jo.ko.kak()
+
+	//a := []int{1, 3, 4, 5}
+	//a = append(a, 6)
+	//fmt.Println(a)
+
+	//s := time.Second * 5
+	//time.Sleep(s)
+	//
+	//period := 5
+	//r := time.Second * period
+	//time.Sleep(r)
+
+	//if _, err := os.Open("non-existing"); err != nil {
+	//	var pathError *fs.PathError
+	//	if errors.As(err, &pathError) {
+	//		fmt.Println("Failed a path:", pathError.Path)
+	//	} else {
+	//		fmt.Println(err)
+	//	}
+	//}
+
+	k := &Ko{}
+	k.kak()
+	k.Tak()
+
+	fmt.Println(images.Im)
+
+	st := variadic("s", "t", "43", "stri", "ng")
+
+	fmt.Println(st)
+
+	//var be b
+	//
+	//fmt.Println(be.Legs())
+	//be.PrintLegs()
+	//fmt.Println(be.a.Legs())
+	//be.a.PrintLegs()
+
+	//var cat Cat
+	//var octo OctoCat
+	//fmt.Println(octo.Legs()) // 5
+	//fmt.Println(cat.Legs()) // 4
+	//octo.PrintLegs() // I иметь 5 ноги
+	//cat.PrintLegs() // I иметь 4 ноги
+
+	// так выглядит assert на тип
+	var err error = errors.New("what")
+	ne, ok := err.(net.Error)
+	fmt.Println(ne, ok)
+	// в переменную нельзя перезаписать тип
+	net2, ok := err.(error)
+	fmt.Println(net2, ok)
+
+	// если передавать переменную is как определенный тип, а не интерфейс, то все сломается
+	var is interface{} = "ser"
+	switch v := is.(type) {
+	case int:
+		fmt.Printf("Twice %v is %v\n", v, v*2)
+	case string:
+		fmt.Printf("%q is %v bytes long\n", v, len(v))
+	default:
+		fmt.Printf("I don't know about type %T!\n", v)
+	}
 
 }
+
+type Cat struct {
+	Name string
+}
+
+func (c Cat) Legs() int { return 4 }
+
+func (c Cat) PrintLegs() {
+	fmt.Printf("У меня %d ног\n", c.Legs())
+}
+
+// если убрать этот метод то код не упадет а будет работать метод для встроенного типа струкруты при вызове метода на верхнем - хуита какая-то
+func (o OctoCat) PrintLegs() {
+	fmt.Printf("У меня %d ног\n", o.Legs())
+}
+
+type OctoCat struct {
+	Cat
+}
+
+func (o OctoCat) Legs() int { return 5 }
+
+type a struct {
+	i int
+}
+
+func (c a) Legs() int { return 4 }
+
+type b struct {
+	a
+}
+
+func (o b) Legs() int { return 5 }
+
+func (o b) PrintLegs() {
+	fmt.Printf("У меня %d ног\n", o.Legs())
+}
+
+func (c a) PrintLegs() {
+	fmt.Printf("У меня %d ног\n", c.Legs())
+}
+
+func variadic(st ...string) []string {
+	return st
+}
+
+type KOKOKOInterface interface {
+	kak()
+	Tak()
+}
+
+type Ko struct {
+	n int
+}
+
+func (k *Ko) kak() {
+	fmt.Println("1111")
+}
+
+func (k *Ko) Tak() {
+	fmt.Println("2222")
+}
+
+type Jo struct {
+	st string
+	ko KOKOKOInterface
+}
+
+// go version 1.18 have generics
+
+//type List[T any] struct {
+//	head, tail *element[T]
+//}
+//
+//type element[T any] struct {
+//	next *element[T]
+//	val  T
+//}
 
 func byteString() {
 	bt := []byte("GetItems:")
